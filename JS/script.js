@@ -8,14 +8,23 @@ window.onload = () =>{
     const player = document.querySelector("#player")
 
     const canvasPoints = document.querySelector(".points")
+    const canvasRecord = document.querySelector(".record")
+   
+    var time = performance.now();
 
+    if(sessionStorage.getItem("points") != null){
+        canvasRecord.innerHTML = sessionStorage.getItem("points")
+    }
+    else{
+        canvasRecord.innerHTML = 0
+    }
 
     let points = 0
 
     let xPlayer = 10
     let yPlayer = 240
 
-    let ySpeed = 0
+    let ySpeed = 10
 
     let pipeSpeed = 1
 
@@ -49,9 +58,9 @@ window.onload = () =>{
     }
 
     function spawnNewPipe(){
-        let randomY = Math.floor(Math.random() * (350 - 250 + 1)) + 250;
+        let randomY = Math.floor(Math.random() * (350 - 290 + 1)) + 290;
         let randomX = Math.floor(Math.random() * (200 - 80 + 1)) + 80;
-        if(pipes[pipes.length - 1].x + randomX <= width){
+        if(pipes[pipes.length - 1].x + randomX <= width - 100){
             let pipe1 = {
                 x: 320,
                 y: randomY, 
@@ -82,16 +91,23 @@ window.onload = () =>{
                 pipes[i].counted = true
                 points+=0.5;
             }
+            
             pipes[i].x -= pipeSpeed
         }
         canvasPoints.innerHTML = points
         spawnNewPipe()
 
-        yPlayer += ySpeed
+        yPlayer = yPlayer - ySpeed * ((performance.now() - time) / 60000) + (10000 * ((performance.now() - time) / 60000) * ((performance.now() - time) / 60000))
 
         if(Collision()){
+            if(points > sessionStorage.getItem("points")){
+                sessionStorage.setItem("points", points)
+            }
             clearInterval(timerId)
         }
+
+        console.log((ySpeed * ((performance.now() - time) / 60000)) + " yspeed")
+        console.log(1000 * ((performance.now() - time) / 60000) * ((performance.now() - time) / 60000) / 2)
     }
 
     let timerId = setInterval(gameLoop, 6)
@@ -107,10 +123,13 @@ window.onload = () =>{
         }
     })
 
-    document.addEventListener("keyup", (event) =>{
-       if(event.key == "s" || event.key == "w"){
-        ySpeed = 0
-       }
+    document.addEventListener("keydown", (event) =>{
+    //    if(event.key == "s" || event.key == "w"){
+    //     ySpeed = 0
+    //    }
+            time = performance.now()
+            ySpeed = 140
+        
     })
 
 
